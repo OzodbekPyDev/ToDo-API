@@ -1,19 +1,16 @@
 import pytest
 from httpx import AsyncClient
-from httpx._transports.asgi import ASGITransport
 from fastapi import status
-from app.main import app
-
-from tests.api.v1.fixtures import get_cookies
 
 
 @pytest.mark.asyncio
-async def test_create_task(get_cookies):
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies=await get_cookies) as ac:
-        response = await ac.post("/api/v1/tasks/", json={
-            "name": "Test Task",
-            "description": "This is a test task description"
-        })
+async def test_create_task(authorized_client: AsyncClient):
+
+    response = await authorized_client.post("/api/v1/tasks/", json={
+        "name": "Test Task",
+        "description": "This is a test task description"
+    })
+
     assert response.status_code == status.HTTP_201_CREATED
     data = response.json()
     assert data["name"] == "Test Task"
@@ -21,10 +18,9 @@ async def test_create_task(get_cookies):
 
 
 @pytest.mark.asyncio
-async def test_get_all_tasks(get_cookies):
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies=await get_cookies) as ac:
+async def test_get_all_tasks(authorized_client: AsyncClient):
 
-        response = await ac.get("/api/v1/tasks/")
+    response = await authorized_client.get("/api/v1/tasks/")
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -34,18 +30,20 @@ async def test_get_all_tasks(get_cookies):
 
 
 @pytest.mark.asyncio
-async def test_get_task_by_id(get_cookies):
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies=await get_cookies) as ac:
-        # Firstly create a task in order to get its ID
-        create_response = await ac.post("/api/v1/tasks/", json={
-            "name": "Test Task",
-            "description": "This is a test task description"
-        })
-        assert create_response.status_code == status.HTTP_201_CREATED
-        task = create_response.json()
-        task_id = task["id"]
+async def test_get_task_by_id(authorized_client: AsyncClient):
+    # Firstly create a task in order to get its ID
+    create_response = await authorized_client.post("/api/v1/tasks/", json={
+        "name": "Test Task",
+        "description": "This is a test task description"
+    })
 
-        response = await ac.get(f"/api/v1/tasks/{task_id}")
+    assert create_response.status_code == status.HTTP_201_CREATED
+    task = create_response.json()
+    task_id = task["id"]
+
+    # Get a task by ID
+    response = await authorized_client.get(f"/api/v1/tasks/{task_id}")
+
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["id"] == task_id
@@ -54,21 +52,23 @@ async def test_get_task_by_id(get_cookies):
 
 
 @pytest.mark.asyncio
-async def test_update_task(get_cookies):
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies=await get_cookies) as ac:
-        # Create a test task first in order to get its ID to update
-        create_response = await ac.post("/api/v1/tasks/", json={
-            "name": "Test Task",
-            "description": "This is a test task description"
-        })
-        assert create_response.status_code == status.HTTP_201_CREATED
-        task = create_response.json()
-        task_id = task["id"]
+async def test_update_task(authorized_client: AsyncClient):
+    # Create a test task first in order to get its ID to update
+    create_response = await authorized_client.post("/api/v1/tasks/", json={
+        "name": "Test Task",
+        "description": "This is a test task description"
+    })
 
-        response = await ac.put(f"/api/v1/tasks/{task_id}", json={
-            "name": "Updated Task",
-            "description": "This is an updated task description"
-        })
+    assert create_response.status_code == status.HTTP_201_CREATED
+    task = create_response.json()
+    task_id = task["id"]
+
+    # Update a task by ID
+    response = await authorized_client.put(f"/api/v1/tasks/{task_id}", json={
+        "name": "Updated Task",
+        "description": "This is an updated task description"
+    })
+
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["id"] == task_id
@@ -77,22 +77,21 @@ async def test_update_task(get_cookies):
 
 
 @pytest.mark.asyncio
-async def test_delete_task(get_cookies):
-    cookies = await get_cookies
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies=cookies) as ac:
-        # Firstly create a task in order to get its ID to delete
-        create_response = await ac.post("/api/v1/tasks/", json={
-            "name": "Test Task",
-            "description": "This is a test task description"
-        })
-        assert create_response.status_code == status.HTTP_201_CREATED
-        task = create_response.json()
-        task_id = task["id"]
+async def test_delete_task(authorized_client: AsyncClient):
+    # Firstly create a task in order to get its ID to delete
+    create_response = await authorized_client.post("/api/v1/tasks/", json={
+        "name": "Test Task",
+        "description": "This is a test task description"
+    })
+    assert create_response.status_code == status.HTTP_201_CREATED
+    task = create_response.json()
+    task_id = task["id"]
 
-        response = await ac.delete(f"/api/v1/tasks/{task_id}")
+    # Delete a task by ID
+    response = await authorized_client.delete(f"/api/v1/tasks/{task_id}")
+
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    # Check if the task was deleted
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", cookies=cookies) as ac:
-        response = await ac.get(f"/api/v1/tasks/{task_id}")
+    # Check if the task was indeed deleted
+    response = await authorized_client.get(f"/api/v1/tasks/{task_id}")
     assert response.status_code == status.HTTP_404_NOT_FOUND
