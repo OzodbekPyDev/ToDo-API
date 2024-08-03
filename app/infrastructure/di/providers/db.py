@@ -1,4 +1,3 @@
-import os
 from typing import AsyncIterable
 
 from dishka import Provider, Scope, provide

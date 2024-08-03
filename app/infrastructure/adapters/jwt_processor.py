@@ -60,7 +60,3 @@ class JoseJwtTokenProcessor(JwtTokenProcessor):
         token = self.request.auth
         user_id = self.validate_token(token)
         return user_id
-
-
-
-

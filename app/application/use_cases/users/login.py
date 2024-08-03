@@ -36,7 +36,7 @@ class LoginUser(Interactor[LoginUserRequest, UserResponse]):
             password=request.password, hashed_password=user_entity.password
         )
 
-        if not user_entity or not is_correct_password:
+        if not is_correct_password:
             raise InvalidAuthCredentialsException("Invalid credentials. Please check your email and password and try again.")
 
         return UserResponse.from_entity(entity=user_entity)
