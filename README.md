@@ -1,46 +1,46 @@
 # ToDo API
 
-## Описание
+## Description
 
-Проект ToDo API реализует систему управления задачами с использованием архитектуры DDD (Domain-Driven Design) и CA (Clean Architecture). Используемые технологии: FastAPI, SQLAlchemy, Alembic, PostgreSQL.
+The ToDo API project implements a task management system using Domain-Driven Design (DDD) and Clean Architecture (CA). Technologies used include FastAPI, SQLAlchemy, Alembic, and PostgreSQL.
 
-### Основные возможности
+### Main Features
 
-- Пользователь может зарегистрироваться и войти в систему.
-- Пользователь может создавать, просматривать, обновлять и удалять задачи.
-- Пользователь может выдавать и отнимать права на работу с конкретной задачей другому пользователю.
-  - Выдавать и отнимать права на задачу может только создатель задачи.
-  - Возможные права: Чтение, Обновление.
+- Users can register and log into the system.
+- Users can create, view, update, and delete tasks.
+- Users can assign and revoke permissions for specific tasks to other users.
+  - Only the task creator can assign and revoke permissions.
+  - Possible permissions: Read, Update.
 
-### Основные сущности
+### Main Entities
 
-- `users`: Пользователи системы.
-- `tasks`: Задачи, создаваемые пользователями.
-- `task_permissions`: Права доступа к задачам.
+- `users`: System users.
+- `tasks`: Tasks created by users.
+- `task_permissions`: Task access permissions.
 
-## Тестирование
+## Testing
 
-Проект включает тесты для API аутентификации (auth) и задач (tasks).
+The project includes tests for authentication (auth) and task (tasks) APIs.
 
-Для запуска тестов с использованием `pytest`, выполните следующие шаги:
+To run tests using `pytest`, follow these steps:
 
-### Шаг 1: Установка зависимостей
+### Step 1: Install Dependencies
 
-Активируйте ваше виртуальное окружение и установите зависимости из файла `requirements.txt`:
+Activate your virtual environment and install dependencies from the `requirements.txt` file:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Установка и запуск
+## Installation and Running
 
-### Шаг 1: Создание файла окружения
+### Step 1: Creating the Environment File
 
-В корневой директории проекта создайте файл `.env` и скопируйте в него данные из файла `.env.example`.
+In the root directory of the project, create a `.env` file and copy the data from the `.env.example` file into it.
 
-### Шаг 2: Запуск с использованием Docker
+### Step 2: Running with Docker
 
-Для сборки и запуска контейнеров выполните следующую команду:
+To build and run the containers, execute the following command:
 
 ```bash
 docker-compose up --build -d
